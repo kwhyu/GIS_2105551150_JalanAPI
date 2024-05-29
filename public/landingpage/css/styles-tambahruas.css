@@ -1,0 +1,23 @@
+.map-containerr {
+    padding-right: 15px; /* Untuk menghindari overlay dengan scrollbar */
+}
+
+.form-containerr {
+    padding-left: 7px; /* Untuk menghindari overlay dengan scrollbar */
+}
+
+#map {
+    height: 500px;;
+  }
+  
+/* 
+@media (max-width: 768px) {
+    .map-container,
+    .form-container {
+        padding-right: 0;
+        padding-left: 0;
+    }
+} */
+
+  
+  
