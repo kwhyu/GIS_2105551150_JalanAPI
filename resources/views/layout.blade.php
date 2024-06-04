@@ -24,7 +24,9 @@
     <link href="{{ asset('assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
 
     <!-- Vendor CSS Files -->
@@ -37,64 +39,70 @@
 
     <!-- Map Stuff -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.min.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 
 <body id="page-top">
     <!-- Navigation-->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
         <div class="container">
-            <a class="navbar-brand" href="#page-top"><img src=" {{ asset('landingpage/assets/img/pp.jpeg') }}" alt="..." />GIS - 2105551150</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="#page-top"><img src=" {{ asset('landingpage/assets/img/pp.jpeg') }}"
+                    alt="..." />GIS - 2105551150</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                 Menu
                 <i class="fas fa-bars ms-1"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
                     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    @if(session('token'))
-                    <li class="nav-item"><a class="nav-link" href="/add-ruasjalan">Tambah Ruas Jalan</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/edit-ruasjalan">Edit Ruas Jalan</a></li>
-                    <li class="nav-item dropdown pe-3">
-                        <a class="nav-link nav-profile d-flex align-items-center pe-0" href="" data-bs-toggle="dropdown">
-                            <span class="d-none d-md-block dropdown-toggle ps-2">{{ session('user_name') }}</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center" href="https://github.com/kwhyu">
-                                    <i class="bi bi-person"></i>
-                                    <span>Profile</span>
-                                </a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center" href="{{ route('logout') }}">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                    <span>Sign Out</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if (session('token'))
+                        <li class="nav-item"><a class="nav-link" href="/add-ruasjalan">Tambah Ruas Jalan</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/edit-ruasjalan">Edit Ruas Jalan</a></li>
+                        <li class="nav-item dropdown pe-3">
+                            <a class="nav-link nav-profile d-flex align-items-center pe-0" href=""
+                                data-bs-toggle="dropdown">
+                                <span class="d-none d-md-block dropdown-toggle ps-2">{{ session('user_name') }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="https://github.com/kwhyu">
+                                        <i class="bi bi-person"></i>
+                                        <span>Profile</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="{{ route('logout') }}">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        <span>Sign Out</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     @else
-                    <li class="nav-item"><a class="nav-link" href="/login">Sign In</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/login">Sign In</a></li>
                     @endif
                 </ul>
             </div>
         </div>
     </nav>
     <header class="masthead">
-        <div class="container" >
+        <div class="container">
             <!-- <div class="masthead-subheading">Welcome</div> -->
             <div class="masthead-heading text-uppercase">Managemen Ruas Jalan</div>
         </div>
     </header>
 
     <section>
-    @yield('content')
+        @yield('content')
     </section>
 
     <!-- Footer -->
@@ -103,8 +111,11 @@
             <div class="row align-items-center">
                 <div class="col-lg-4 text-lg-start">Copyright &copy;I Putu Eka Wahyu</div>
                 <div class="col-lg-4 my-3 my-lg-0">
-                    <a class="btn btn-dark btn-social mx-2" href="https://www.facebook.com/profile.php?id=100018244002863" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a class="btn btn-dark btn-social mx-2" href="https://www.linkedin.com/in/eka-wahyu/" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a class="btn btn-dark btn-social mx-2"
+                        href="https://www.facebook.com/profile.php?id=100018244002863" aria-label="Facebook"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a class="btn btn-dark btn-social mx-2" href="https://www.linkedin.com/in/eka-wahyu/"
+                        aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                 </div>
             </div>
         </div>

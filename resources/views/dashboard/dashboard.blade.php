@@ -266,7 +266,6 @@
     <!-- ======= Resume Section ======= -->
     <section id="resume" class="resume">
       <div class="container">
-<!-- ISI KONTEN -->
       </div>
     </section>
   </main><!-- End #main -->

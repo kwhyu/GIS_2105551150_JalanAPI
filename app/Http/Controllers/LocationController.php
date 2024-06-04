@@ -5,19 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Session;
-
+use Illuminate\Support\Facades\Http;
 
 
 
 class LocationController extends Controller
 {
-    public function showAddRuasJalan()
+    public function showAddRuasJalan(Request $request)
     {
         $provinsi = [];
         $kabupaten = [];
         $kecamatan = [];
         $desa = [];
-        $perkerasanEksisting = [];
+
+        $eksisting = [];
         $jenisJalan = [];
         $kondisiJalan = [];
 
@@ -60,7 +61,7 @@ class LocationController extends Controller
             $data = json_decode($response->getBody()->getContents(), true);
 
             // Simpan data perkerasan eksisting ke dalam variabel
-            $perkerasanEksisting = $data['eksisting'];
+            $eksisting = $data['eksisting'];
         } catch (\Exception $e) {
             // Tangani kesalahan jika ada
             return response()->json(['error' => $e->getMessage()], 500);
@@ -103,9 +104,10 @@ class LocationController extends Controller
         }
 
         // Tampilkan data
-        return view('dashboard.tambah-ruas', compact('provinsi', 'kabupaten', 'kecamatan', 'desa', 'perkerasanEksisting', 'jenisJalan', 'kondisiJalan'));
+        // return view('dashboard.tambah-ruas', compact('provinsi', 'kabupaten', 'kecamatan', 'desa', 'perkerasanEksisting', 'jenisJalan', 'kondisiJalan', 'dropdownProvinsi', 'dropdownKabupaten', 'dropdownKecamatan', 'dropdownDesa'));
+        return view('dashboard.tambah-ruas', compact('provinsi', 'kabupaten', 'kecamatan', 'desa', 'eksisting', 'jenisJalan', 'kondisiJalan'));
+        // return view('dashboard.tambah-ruas', compact('provinsis', 'kabupatens', 'kecamatans', 'desas', 'eksisting', 'jenisJalan', 'kondisiJalan'));
     }
-
 
     public function view()
     {
@@ -141,6 +143,7 @@ class LocationController extends Controller
                     $ruasJalanDetails[] = [
                         'id' => $ruas['id'],
                         'paths' => $latLngArray,
+                        'paths2' => $ruas['paths'],
                         'desa_id' => $ruas['desa_id'],
                         'kode_ruas' => $ruas['kode_ruas'],
                         'nama_ruas' => $ruas['nama_ruas'],
@@ -169,92 +172,6 @@ class LocationController extends Controller
     {
         return $this->getRuasJalan('dashboard.edit-ruas');
     }
-
-
-//     public function getRuasJalanForEdit()
-// {
-//     $token = Session::get('token');
-//     $client = new Client();
-
-//     try {
-//         $response = $client->request('GET', 'https://gisapis.manpits.xyz/api/ruasjalan', [
-//             'headers' => [
-//                 'Authorization' => 'Bearer ' . $token
-//             ],
-//         ]);
-
-//         $data = json_decode($response->getBody(), true);
-
-//         if (isset($data['ruasjalan']) && !empty($data['ruasjalan'])) {
-//             $ruasJalanDetails = [];
-
-//             // Loop through each ruas jalan and collect all necessary details
-//             foreach ($data['ruasjalan'] as $ruas) {
-//                 $latLngArray = $this->decodePolyline($ruas['paths']);
-
-//                 // Add additional details to the array
-//                 $ruasJalanDetails[] = [
-//                     'id' => $ruas['id'],
-//                     'paths' => $latLngArray,
-//                     'desa_id' => $ruas['desa_id'],
-//                     'kode_ruas' => $ruas['kode_ruas'],
-//                     'nama_ruas' => $ruas['nama_ruas'],
-//                     'panjang' => $ruas['panjang'],
-//                     'lebar' => $ruas['lebar'],
-//                     'eksisting_id' => $ruas['eksisting_id'],
-//                     'kondisi_id' => $ruas['kondisi_id'],
-//                     'jenisjalan_id' => $ruas['jenisjalan_id'],
-//                     'keterangan' => $ruas['keterangan']
-//                 ];
-//             }
-//             return view('dashboard.edit-ruas', compact('ruasJalanDetails'));
-//         } else {
-//             return view('dashboard.edit-ruas');
-//         }
-//     } catch (\Exception $e) {
-//         // Tangani semua pengecualian
-//         return response()->json(['error' => $e->getMessage()], 500);
-//     }
-// }
-
-    // public function getRuasJalanForEdit()
-    // {
-    //     return $this->getRuasJalan('dashboard.edit-ruas');
-    // }
-
-    // public function getRuasJalan()
-    // {
-    //     $token = Session::get('token');
-    //     $client = new Client();
-
-    //     try {
-    //         $response = $client->request('GET', 'https://gisapis.manpits.xyz/api/ruasjalan', [
-    //             'headers' => [
-    //                 'Authorization' => 'Bearer ' . $token
-    //             ],
-    //         ]);
-
-    //         $data = json_decode($response->getBody(), true);
-
-    //         if (isset($data['ruasjalan']) && !empty($data['ruasjalan'])) {
-    //             $polylines = [];
-
-    //             // Loop through each ruas jalan and decode the polyline
-    //             foreach ($data['ruasjalan'] as $ruas) {
-    //                 $paths = $ruas['paths'];
-    //                 $latLngArray = $this->decodePolyline($paths);
-    //                 $polylines[] = $latLngArray;
-    //             }
-    //             return view('dashboard.dashboard-main2', compact('polylines'));
-    //         } else {
-    //             // Jika array 'ruasjalan' kosong atau tidak diset, kembalikan view tanpa data polyline
-    //             return view('dashboard.dashboard-main2');
-    //         }
-    //     } catch (\Exception $e) {
-    //         // Tangani semua pengecualian
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    // }
 
     private function decodePolyline($encoded)
     {
@@ -321,6 +238,73 @@ class LocationController extends Controller
             return redirect()->back()->with('error', 'Gagal menambahkan Ruas Jalan: ' . $e->getMessage());
         }
     }
+
+    public function updateRuasJalan(Request $request, $id)
+    {
+        $token = Session::get('token');
+        $client = new Client();
+
+        try {
+            $response = $client->request('PUT', 'https://gisapis.manpits.xyz/api/ruasjalan/' . $id, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token
+                ],
+                'form_params' => [
+                    'paths' => $request->paths_get,
+                    'desa_id' => $request->desa_id,
+                    'kode_ruas' => $request->kode_ruas,
+                    'nama_ruas' => $request->nama_ruas,
+                    'panjang' => $request->panjang,
+                    'lebar' => $request->lebar,
+                    'eksisting_id' => $request->eksisting_id,
+                    'kondisi_id' => $request->kondisi_id,
+                    'jenisjalan_id' => $request->jenisjalan_id,
+                    'keterangan' => $request->keterangan,
+                ],
+            ]);
+
+            // Check if the request was successful
+            if ($response->getStatusCode() == 200) {
+                return redirect()->back()->with('success', 'Ruas Jalan updated successfully.');
+            } else {
+                return redirect()->back()->with('error', 'Failed to update Ruas Jalan.');
+            }
+        } catch (\Exception $e) {
+            // Handle exception
+            return redirect()->back()->with('error', 'Failed to update Ruas Jalan: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteRuasJalan(Request $request, $id)
+    {
+        // Mendapatkan token dari sesi
+        $token = Session::get('token');
+
+        // Membuat instance Guzzle HTTP Client
+        $client = new Client();
+
+        try {
+            // Melakukan permintaan DELETE ke API dengan menyertakan token
+            $response = $client->request('DELETE', 'https://gisapis.manpits.xyz/api/ruasjalan/' . $id, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                ],
+            ]);
+
+            // Mengecek apakah permintaan berhasil
+            if ($response->getStatusCode() === 204) {
+                // Jika berhasil, kembalikan respon yang sesuai
+                return redirect()->back()->with('success', 'Ruas jalan berhasil dihapus');
+            } else {
+                // Jika gagal, kembalikan respon dengan pesan error
+                return redirect()->back()->with('error', 'Gagal menghapus ruas jalan');
+            }
+        } catch (\Exception $e) {
+            // Menangani exception jika terjadi kesalahan
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus ruas jalan: ' . $e->getMessage());
+        }
+    }
+
     // public function getRuasJalanForEdit()
     // {
 
