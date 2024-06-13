@@ -1,9 +1,6 @@
 @extends('layout')
 
 @section('content')
-    <!-- @if (isset($polylines) && !empty($polylines))
-    <div id="polylineData" style="display: none;">{{ json_encode($polylines) }}</div>
-    @endif -->
     @if (isset($ruasJalanDetails) && !empty($ruasJalanDetails))
         <div id="ruasJalanDetails" style="display: none;">{{ json_encode($ruasJalanDetails) }}</div>
     @endif
@@ -11,10 +8,6 @@
         <div class="container" style="padding-top: 0;">
             <div class="text-center" style="padding-top: 0;">
                 <div id="polylineText"></div>
-                <script>
-                    var polylineData = JSON.parse(document.getElementById('polylineData').textContent);
-                    console.log(polylineData);
-                </script>
                 <h2 class="section-heading text-uppercase">Peta Ruas Jalan</h2>
             </div>
             <div id="mapid" style="background-color: #f0f0f0;"></div>
@@ -50,8 +43,7 @@
                                     <td>{{ $ruas['kondisi_id'] }}</td>
                                     <td>{{ $ruas['jenisjalan_id'] }}</td>
                                     <td>{{ $ruas['keterangan'] }}</td>
-                                    <td><button onclick="boundPolyline({{ json_encode($ruas['paths2']) }})">Cari</button>
-                                    </td>
+                                    <td><button onclick="boundPolyline('{{ $ruas['paths2'] }}', {{ $ruas['id'] }})">Cari</button></td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -68,37 +60,36 @@
                     maxZoom: 18,
                 }).addTo(mymap);
 
-                // var polylineData = JSON.parse(document.getElementById('polylineData').textContent);
                 var ruasJalanDetails = JSON.parse(document.getElementById('ruasJalanDetails').textContent);
                 console.log(ruasJalanDetails);
 
                 var polycolors = ['red', 'blue', 'green', 'purple', 'orange', 'yellow', 'pink', 'brown', 'black'];
 
+                // Define polylines globally
+                var polylines = [];
+
                 ruasJalanDetails.forEach(function(ruas, index) {
                     var color = polycolors[index % polycolors.length];
                     var polyline = L.polyline(ruas.paths, {
-                        color: color
+                        color: color,
+                        id: ruas.id // Ensure the id is set correctly
                     }).addTo(mymap);
 
-                    // polylineData.forEach(function(polylineCoords, index) {
-                    //     var color = polycolors[index % polycolors.length];
-                    //     var polyline = L.polyline(polylineCoords, {
-                    //         color: color
-                    //     }).addTo(mymap);
+                    polylines.push(polyline);
 
                     // Event listener for polyline click
                     polyline.on('click', function(e) {
                         console.log(`Polyline ${index + 1} clicked`);
                         var popupContent = `
-                    <div class="popup-content">
-                            <p>ID Ruas: ${ruas.id}</p>
-                            <p>Kode Ruas: ${ruas.kode_ruas}</p>
-                            <p>Nama Ruas: ${ruas.nama_ruas}</p>
-                            <p>Panjang: ${ruas.panjang}</p>
-                            <p>Lebar: ${ruas.lebar}</p>
-                            <p>Keterangan: ${ruas.keterangan}</p>
-                        </div>
-                    `;
+                            <div class="popup-content">
+                                <p>ID Ruas: ${ruas.id}</p>
+                                <p>Kode Ruas: ${ruas.kode_ruas}</p>
+                                <p>Nama Ruas: ${ruas.nama_ruas}</p>
+                                <p>Panjang: ${ruas.panjang}</p>
+                                <p>Lebar: ${ruas.lebar}</p>
+                                <p>Keterangan: ${ruas.keterangan}</p>
+                            </div>
+                        `;
                         L.popup()
                             .setLatLng(e.latlng)
                             .setContent(popupContent)
@@ -106,17 +97,65 @@
                     });
                 });
 
-                function boundPolyline(paths) {
+                function decodePolyline(encoded) {
+                    let index = 0,
+                        lat = 0,
+                        lng = 0,
+                        latlngs = [];
+
+                    while (index < encoded.length) {
+                        let shift = 0,
+                            result = 0,
+                            bit;
+
+                        do {
+                            bit = encoded.charCodeAt(index++) - 63;
+                            result |= (bit & 0x1f) << shift;
+                            shift += 5;
+                        } while (bit >= 0x20);
+
+                        let dlat = (result & 1) ? ~(result >> 1) : (result >> 1);
+                        lat += dlat;
+
+                        shift = result = 0;
+
+                        do {
+                            bit = encoded.charCodeAt(index++) - 63;
+                            result |= (bit & 0x1f) << shift;
+                            shift += 5;
+                        } while (bit >= 0x20);
+
+                        let dlng = (result & 1) ? ~(result >> 1) : (result >> 1);
+                        lng += dlng;
+
+                        latlngs.push([lat * 1e-5, lng * 1e-5]);
+                    }
+
+                    return latlngs;
+                }
+
+                function boundPolyline(encodedPaths, ruasId) {
+                    console.log("Encoded paths:", encodedPaths);
+                    console.log("Ruas ID:", ruasId);
+
+                    // Decode the polyline paths
+                    var paths = decodePolyline(encodedPaths);
+                    console.log("Decoded paths:", paths);
+
                     var latLngs = paths.map(function(path) {
-                        return [path.lat, path.lng];
+                        return [path[0], path[1]];
                     });
 
-                    // Cari polyline dengan ID yang sesuai
+                    console.log("LatLngs:", latLngs);
+
+                    // Find polyline with the matching ID
                     var targetPolyline = polylines.find(function(polyline) {
-                        return polyline.options.id == paths[0].ruas_id;
+                        console.log("Checking polyline ID:", polyline.options.id, "against", ruasId);
+                        return polyline.options.id.toString() === ruasId.toString(); // Convert both to strings for comparison
                     });
 
                     if (targetPolyline) {
+                        console.log('Target Polyline found:', targetPolyline);
                         var bounds = L.latLngBounds(latLngs);
                         mymap.fitBounds(bounds);
                     } else {
