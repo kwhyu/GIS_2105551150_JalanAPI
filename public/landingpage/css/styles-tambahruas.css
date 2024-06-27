@@ -7,9 +7,9 @@
 }
 
 #map {
-    height: 500px;;
-  }
-  
+    height: 500px;
+}
+
 /* 
 @media (max-width: 768px) {
     .map-container,
@@ -19,5 +19,106 @@
     }
 } */
 
-  
-  
+.summary-table,
+.summary-table th,
+.summary-table td {
+    border: 2px solid #ddd;
+    padding: 8px;
+}
+
+.summary-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.summary-table th {
+    background-color: #4caf50;
+    color: white;
+    text-align: center;
+}
+
+.summary-table td {
+    text-align: center;
+    background-color: #f9f9f9;
+}
+
+.summary-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.data-table,
+.data-table th,
+.data-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.data-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.data-table th {
+    background-color: #4caf50;
+    color: white;
+}
+
+.data-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.data-table tr:hover {
+    background-color: #ddd;
+}
+
+.data-table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+}
+
+.table-desktop th {
+    background-color: #3a9ad9;
+    color: white;
+}
+
+.table-desktop td {
+    background-color: #d4e9f9;
+}
+
+.table-laptop th {
+    background-color: #f39c12;
+    color: white;
+}
+
+.table-laptop td {
+    background-color: #f9e7d2;
+}
+
+.table-mobile th {
+    background-color: #d35400;
+    color: white;
+}
+
+.table-mobile td {
+    background-color: #f6b093;
+}
+
+.table-tablet th {
+    background-color: #27ae60;
+    color: white;
+}
+
+.table-tablet td {
+    background-color: #b8e1cb;
+}
+
+.table-total th {
+    background-color: #8e44ad;
+    color: white;
+}
+
+.table-total td {
+    background-color: #e8d4f0;
+}

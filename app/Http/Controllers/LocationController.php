@@ -40,10 +40,18 @@ class LocationController extends Controller
             $data = json_decode($response->getBody()->getContents(), true);
 
             // Simpan data provinsi, kabupaten, dan kecamatan ke dalam variabel terpisah
+            // Ambil data provinsi
             $provinsi = $data['provinsi'];
+
+            // Ambil data kabupaten
             $kabupaten = $data['kabupaten'];
+
+            // Ambil data kecamatan
             $kecamatan = $data['kecamatan'];
+
+            // Ambil data desa
             $desa = $data['desa'];
+
         } catch (\Exception $e) {
             // Tangani kesalahan jika ada
             return response()->json(['error' => $e->getMessage()], 500);
@@ -109,6 +117,122 @@ class LocationController extends Controller
         // return view('dashboard.tambah-ruas', compact('provinsis', 'kabupatens', 'kecamatans', 'desas', 'eksisting', 'jenisJalan', 'kondisiJalan'));
     }
 
+    public function showEditRuasJalan(Request $request)
+    {
+        $provinsi = [];
+        $kabupaten = [];
+        $kecamatan = [];
+        $desa = [];
+
+        // Mendapatkan token dari sesi
+        $token = Session::get('token');
+
+        // Inisialisasi client GuzzleHttp
+        $client = new Client();
+
+        try {
+            // Lakukan permintaan GET ke API mregion
+            $response = $client->request('GET', 'https://gisapis.manpits.xyz/api/mregion', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token // Gunakan token dari sesi
+                ]
+            ]);
+
+            // Mendapatkan data JSON dari respons
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            // Simpan data provinsi, kabupaten, dan kecamatan ke dalam variabel terpisah
+            // Ambil data provinsi
+            $provinsi = $data['provinsi'];
+
+            // Ambil data kabupaten
+            $kabupaten = $data['kabupaten'];
+
+            // Ambil data kecamatan
+            $kecamatan = $data['kecamatan'];
+
+            // Ambil data desa
+            $desa = $data['desa'];
+
+        } catch (\Exception $e) {
+            // Tangani kesalahan jika ada
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+        // Tampilkan data
+        // return view('dashboard.tambah-ruas', compact('provinsi', 'kabupaten', 'kecamatan', 'desa', 'perkerasanEksisting', 'jenisJalan', 'kondisiJalan', 'dropdownProvinsi', 'dropdownKabupaten', 'dropdownKecamatan', 'dropdownDesa'));
+        return view('dashboard.edit-ruas', compact('provinsi', 'kabupaten', 'kecamatan', 'desa', 'eksisting', 'jenisJalan', 'kondisiJalan'));
+        // return view('dashboard.tambah-ruas', compact('provinsis', 'kabupatens', 'kecamatans', 'desas', 'eksisting', 'jenisJalan', 'kondisiJalan'));
+    }
+
+    // public function getKabupatenByProvinsi($id_prov)
+    // {
+    //     // Mendapatkan token dari sesi
+    //     $token = Session::get('token');
+
+    //     try {
+    //         // Inisialisasi client GuzzleHttp dengan menyertakan token
+    //         $client = new Client();
+    //         $response = $client->request('GET', "https://gisapis.manpits.xyz/api/regions/kabupaten/{$id_prov}", [
+    //             'headers' => [
+    //                 'Authorization' => 'Bearer ' . $token
+    //             ]
+    //         ]);
+
+    //         // Mendapatkan data JSON dari respons
+    //         $data = json_decode($response->getBody()->getContents(), true);
+
+    //         // Mengembalikan data dalam bentuk JSON
+    //         return response()->json($data);
+    //     } catch (\Exception $e) {
+    //         // Tangani kesalahan jika ada
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
+
+    // public function getKecamatanByKabupaten($id_kab)
+    // {
+    //     // Mendapatkan token dari sesi
+    //     $token = Session::get('token');
+
+    //     try {
+    //         // Inisialisasi client GuzzleHttp dengan menyertakan token
+    //         $client = new Client();
+    //         $response = $client->request('GET', "https://gisapis.manpits.xyz/api/regions/kecamatan/{$id_kab}", [
+    //             'headers' => [
+    //                 'Authorization' => 'Bearer ' . $token
+    //             ]
+    //         ]);
+
+    //         // Mendapatkan data JSON dari respons
+    //         $data = json_decode($response->getBody()->getContents(), true);
+
+    //         // Mengembalikan data dalam bentuk JSON
+    //         return response()->json($data);
+    //     } catch (\Exception $e) {
+    //         // Tangani kesalahan jika ada
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
+
+    // public function getDesas($kec_id)
+    // {
+    //     $token = Session::get('token');
+    //     $client = new Client();
+
+    //     try {
+    //         $response = $client->request('GET', "https://gisapis.manpits.xyz/api/desa/{$kec_id}", [
+    //             'headers' => [
+    //                 'Authorization' => 'Bearer ' . $token
+    //             ]
+    //         ]);
+
+    //         $data = json_decode($response->getBody()->getContents(), true);
+    //         return response()->json($data);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
+
     public function view()
     {
         if (Session::has('token')) {
@@ -117,56 +241,132 @@ class LocationController extends Controller
 
         return view('dashboard.dashboard-main2');
     }
-
     public function getRuasJalan($viewType)
-    {
-        $token = Session::get('token');
-        $client = new Client();
+{
+    $token = Session::get('token');
+    $client = new Client();
 
-        try {
-            $response = $client->request('GET', 'https://gisapis.manpits.xyz/api/ruasjalan', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $token
-                ],
-            ]);
+    try {
+        $response = $client->request('GET', 'https://gisapis.manpits.xyz/api/ruasjalan', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token
+            ],
+        ]);
 
-            $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getBody(), true);
 
-            if (isset($data['ruasjalan']) && !empty($data['ruasjalan'])) {
-                $ruasJalanDetails = [];
+        if (isset($data['ruasjalan']) && !empty($data['ruasjalan'])) {
+            $ruasJalanDetails = [];
 
-                // Loop through each ruas jalan and collect all necessary details
-                foreach ($data['ruasjalan'] as $ruas) {
-                    $latLngArray = $this->decodePolyline($ruas['paths']);
+            // Loop through each ruas jalan and collect all necessary details
+            foreach ($data['ruasjalan'] as $ruas) {
+                $latLngArray = $this->decodePolyline($ruas['paths']);
 
-                    // Add additional details to the array
-                    $ruasJalanDetails[] = [
-                        'id' => $ruas['id'],
-                        'paths' => $latLngArray,
-                        'paths2' => $ruas['paths'],
-                        'desa_id' => $ruas['desa_id'],
-                        'kode_ruas' => $ruas['kode_ruas'],
-                        'nama_ruas' => $ruas['nama_ruas'],
-                        'panjang' => $ruas['panjang'],
-                        'lebar' => $ruas['lebar'],
-                        'eksisting_id' => $ruas['eksisting_id'],
-                        'kondisi_id' => $ruas['kondisi_id'],
-                        'jenisjalan_id' => $ruas['jenisjalan_id'],
-                        'keterangan' => $ruas['keterangan']
-                    ];
-                }
-                return view($viewType, compact('ruasJalanDetails'));
-                // return view('dashboard.dashboard-main2', compact('ruasJalanDetails'));
-            } else {
-                // Jika array 'ruasjalan' kosong atau tidak diset, kembalikan view tanpa data polyline
-                // return view('dashboard.dashboard-main2');
-                return view($viewType);
+                // Fetch desa details
+                $desaResponse = $client->request('GET', 'https://gisapis.manpits.xyz/api/kecamatanbydesaid/' . $ruas['desa_id'], [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $token
+                    ],
+                ]);
+
+                $desaData = json_decode($desaResponse->getBody(), true);
+                $namaDesa = isset($desaData['desa']['desa']) ? $desaData['desa']['desa'] : 'Unknown';
+                $idDesa = isset($desaData['desa']['id']) ? $desaData['desa']['id'] : 'Unknown';
+
+                $namaKecamatan = isset($desaData['kecamatan']['kecamatan']) ? $desaData['kecamatan']['kecamatan'] : 'Unknown';
+                $idKecamatan = isset($desaData['kecamatan']['id']) ? $desaData['kecamatan']['id'] : 'Unknown';
+
+                $namaKabupaten = isset($desaData['kabupaten']['kabupaten']) ? $desaData['kabupaten']['kabupaten'] : 'Unknown';
+                $idKabupaten = isset($desaData['kabupaten']['id']) ? $desaData['kabupaten']['id'] : 'Unknown';
+
+                $namaProvinsi = isset($desaData['provinsi']['provinsi']) ? $desaData['provinsi']['provinsi'] : 'Unknown';
+                $idProvinsi = isset($desaData['provinsi']['id']) ? $desaData['provinsi']['id'] : 'Unknown';
+
+                // Add additional details to the array
+                $ruasJalanDetails[] = [
+                    'id' => $ruas['id'],
+                    'paths' => $latLngArray,
+                    'paths2' => $ruas['paths'],
+                    'desa_id' => $ruas['desa_id'],
+                    'nama_desa' => $namaDesa,
+                    'nama_kecamatan' => $namaKecamatan,
+                    'nama_kabupaten' => $namaKabupaten,
+                    'nama_provinsi' => $namaProvinsi,
+                    'id_desa' => $idDesa,
+                    'id_kecamatan' => $idKecamatan,
+                    'id_kabupaten' => $idKabupaten,
+                    'id_provinsi' => $idProvinsi,
+                    'kode_ruas' => $ruas['kode_ruas'],
+                    'nama_ruas' => $ruas['nama_ruas'],
+                    'panjang' => $ruas['panjang'],
+                    'lebar' => $ruas['lebar'],
+                    'eksisting_id' => $ruas['eksisting_id'],
+                    'kondisi_id' => $ruas['kondisi_id'],
+                    'jenisjalan_id' => $ruas['jenisjalan_id'],
+                    'keterangan' => $ruas['keterangan']
+                ];
             }
-        } catch (\Exception $e) {
-            // Tangani semua pengecualian
-            return response()->json(['error' => $e->getMessage()], 500);
+            return view($viewType, compact('ruasJalanDetails'));
+        } else {
+            // Jika array 'ruasjalan' kosong atau tidak diset, kembalikan view tanpa data polyline
+            return view($viewType);
         }
+    } catch (\Exception $e) {
+        // Tangani semua pengecualian
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
+
+    // public function getRuasJalan($viewType)
+    // {
+    //     $token = Session::get('token');
+    //     $client = new Client();
+
+    //     try {
+    //         $response = $client->request('GET', 'https://gisapis.manpits.xyz/api/ruasjalan', [
+    //             'headers' => [
+    //                 'Authorization' => 'Bearer ' . $token
+    //             ],
+    //         ]);
+
+    //         $data = json_decode($response->getBody(), true);
+
+    //         if (isset($data['ruasjalan']) && !empty($data['ruasjalan'])) {
+    //             $ruasJalanDetails = [];
+
+    //             // Loop through each ruas jalan and collect all necessary details
+    //             foreach ($data['ruasjalan'] as $ruas) {
+    //                 $latLngArray = $this->decodePolyline($ruas['paths']);
+
+    //                 // Add additional details to the array
+    //                 $ruasJalanDetails[] = [
+    //                     'id' => $ruas['id'],
+    //                     'paths' => $latLngArray,
+    //                     'paths2' => $ruas['paths'],
+    //                     'desa_id' => $ruas['desa_id'],
+    //                     'kode_ruas' => $ruas['kode_ruas'],
+    //                     'nama_ruas' => $ruas['nama_ruas'],
+    //                     'panjang' => $ruas['panjang'],
+    //                     'lebar' => $ruas['lebar'],
+    //                     'eksisting_id' => $ruas['eksisting_id'],
+    //                     'kondisi_id' => $ruas['kondisi_id'],
+    //                     'jenisjalan_id' => $ruas['jenisjalan_id'],
+    //                     'keterangan' => $ruas['keterangan']
+    //                 ];
+    //             }
+    //             return view($viewType, compact('ruasJalanDetails'));
+    //             // return view('dashboard.dashboard-main2', compact('ruasJalanDetails'));
+    //         } else {
+    //             // Jika array 'ruasjalan' kosong atau tidak diset, kembalikan view tanpa data polyline
+    //             // return view('dashboard.dashboard-main2');
+    //             return view($viewType);
+    //         }
+    //     } catch (\Exception $e) {
+    //         // Tangani semua pengecualian
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
+
 
     public function getRuasJalanForEdit()
     {
